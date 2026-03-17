@@ -1,0 +1,69 @@
+# ==============================================================================
+# DEFAULT ESCAPE KEY RE-MAPPING
+# ==============================================================================
+# Change the default escape key from Ctrl-a to Ctrl-x to avoid conflict with e.g. Bash/Emacs 'beginning of line'.
+# 'escape ^Xx' means Ctrl-x is the command key, and pressing 'x' sends a literal Ctrl-x to the terminal.
+escape ^Xx
+
+# ==============================================================================
+# KEYBINDINGS
+# ==============================================================================
+# VSCode-like prefix shortcuts (Ctrl+x prefix, followed by the key)
+bind n screen      # Ctrl+X, n to create a new window
+bind r title       # Ctrl+X, r rename the current window
+bind w kill        # Ctrl+X, w to close (kill) the current window
+
+# Switch to previous/next window with Ctrl+x then Left/Right arrows
+bindkey "^[OD" prev 
+bindkey "^[OC" next
+
+# Or switch using Ctrl+x then [ or ]
+bind [ prev
+bind ] next
+
+
+# ==============================================================================
+# ESSENTIAL EVERYDAY WORKFLOW SETTINGS
+# ==============================================================================
+# Disable the annoying startup welcome message banner.
+startup_message off
+
+# Default to 256 colors to ensure modern terminal aesthetics and compatibility (e.g. for vim/top).
+term "screen-256color"
+
+# Make the scroll wheel work properly in the terminal and allow native scrollback buffer when applicable.
+termcapinfo xterm* ti@:te@
+
+# Enable alternate screen switching, which ensures quitting applications like vim/less restores your previous terminal output.
+altscreen on
+
+# Disable the visual bell (screen flashing) which is typically annoying when encountering errors.
+vbell off
+
+# Keep a massive 30,000-line scrollback buffer so you can comfortably scroll backward to view extensive log outputs.
+defscrollback 30000
+
+# ==============================================================================
+# STATUS BAR CONFIGURATION
+# ==============================================================================
+# Always display a status line at the very bottom line of the terminal window.
+hardstatus alwayslastline
+
+# Defines the appearance of the bottom status bar:
+# - Displays all open windows on the left, highlighting the active window in brackets.
+# - Displays hostname, date, and clock time on the right.
+hardstatus string '%{= Kd} %{= Kd}%-w%{= KY}[%{= KW}%n %t%{= KY}]%{= Kd}%+w %-= %{KG} %H%{KW} | %D %M %d %Y%{= Kc} %C%A%{-}'
+
+# Use a background script to fetch the current screen process ID, keeping it available for advanced statusline configurations if needed.
+<!-- backtick 0 30 30 sh -c 'screen -ls | grep --color=no -o "$PPID[^[:space:]]*"' -->
+
+
+
+# ==============================================================================
+# ON-STARTUP DEFAULT WINDOWS
+# ==============================================================================
+# On startup, launch window 0 and name it "home".
+screen -t home
+
+# On startup, launch window 1 and name it "dev".
+screen -t dev
