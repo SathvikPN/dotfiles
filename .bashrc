@@ -1,21 +1,33 @@
 alias ls='ls --color=auto'
-alias sshlist='grep -w "Host" ~/.ssh/config '
+alias sshlist='grep -E "^\s*(Host|Hostname)" ~/.ssh/config'
 alias ip='curl ifconfig.me' # publicIP
 alias ipmac='ipconfig getifaddr en0' # macos privateIP 
 alias iplinux="hostname -I | awk '{print \$1}'" # linux privateIP
+alias py=python3
 
-alias pyserver='echo "Starting server at http://$(ipconfig getifaddr en0):8000" &&
-    python3 -m http.server 8000'
+# export PATH="/Users/sathvikpn/.antigravity/antigravity/bin:$PATH"
 
-# copy content to clipboard
-# cat file.txt | pbcopy 
-# pbpaste
+path() { echo $PATH | tr ':' '\n'; }
 
-# 'osascript' to programmatically manage macos custom notifications
-# 'say "welcome"' to voice output the string in macos
+pyserver() {
+    local port="${1:-8000}"
+    echo "Starting server at http://$(ipconfig getifaddr en0):$port"
+    python3 -m http.server "$port"
+}
 
-# BASH or ZSH specific
+mdnewline() { [[ -n "$1" ]] && sed -i '' 's/$/  /' "$@" || echo "Usage: mdnewline <file.md>"; }
+
+# =====================================================================================
+# ZSH Terminals 
+# =====================================================================================
 if [ -n "$ZSH_VERSION" ]; then
+    # copy content to clipboard
+    # cat file.txt | pbcopy 
+    # pbpaste
+
+    # 'osascript' to programmatically manage macos custom notifications
+    # 'say "welcome"' to voice output the string in macos
+
     setopt noclobber  # prevent file overwrite via > operator
 
     # Prompt configuration with git branch and venv
@@ -25,18 +37,76 @@ if [ -n "$ZSH_VERSION" ]; then
     zstyle ':vcs_info:git:*' formats ' (%b)'
     zstyle ':vcs_info:*' enable git
 
-    setopt PROMPT_SUBST
-    PROMPT='%{%F{243}%}%1~${vcs_info_msg_0_}%{%f%} %# '
+    # Define general named colors suitable for dark mode
+    local C_DIR='%F{cyan}'      # Standard cyan for directory
+    local C_GIT='%F{magenta}'   # Standard magenta for git branches
+    local C_RESET='%f'          # Resets color back to terminal default
 
-elif [ -n "$BASH_VERSION" ]; then
+    setopt PROMPT_SUBST
+    PROMPT='%{${C_DIR}%}%1~%{${C_GIT}%}${vcs_info_msg_0_}%{${C_RESET}%} %# '
+
+    # Move reminder - sends notification every 20 minutes
+    movereminder() {
+        while true; do
+            sleep 5 # 1200  # 20 minutes = 1200 seconds
+            osascript -e 'display notification "Time to move!" with title "Movement Reminder" subtitle "Stand up and stretch!"' &
+            sleep 3
+        done
+        # movereminder & # run as background job
+        # jobs: list background jobs
+        # fg %1: bring jobID 1 to foreground
+        # kill %1: kill jobID 1
+    }
+
+fi 
+# =====================================================================================
+
+
+# =====================================================================================
+# BASH Terminals
+# =====================================================================================
+if [ -n "$BASH_VERSION" ]; then
     set -o noclobber  # prevent file overwrite via > operator
 fi
+# =====================================================================================
 
 
-# misc ------------
-alias openvs="code -r "
-alias opencursor="cursor -r "
-alias path="echo $PATH | tr ':' '\n'"
-alias mdnewline="sed -i '' 's/$/  /'"
+# =====================================================================================
+# SCREEN session management 
+# =====================================================================================
+# list all screen sockets
+# rm socket as regular to delete that screen
+# screen -ls 
 
-export PATH="/Users/sathvikpn/.antigravity/antigravity/bin:$PATH"
+if [ -z "$STY" ]; then
+    # Fetch list of existing screen sessions
+    sessions=($(screen -ls | awk '/\t[0-9]+\./ {print $1}'))
+    num_sessions=${#sessions[@]}
+    
+    if [ $num_sessions -eq 0 ]; then
+        screen
+    elif [ $num_sessions -eq 1 ]; then
+        screen -RR
+    else
+        echo "Multiple screen sessions available:"
+        for i in {1..$num_sessions}; do
+            echo "  $i) ${sessions[$i]}"
+        done
+        echo "  n) Create new session"
+        echo "  c) Cancel (stay in standard terminal)"
+        
+        echo -n "Select option [1]: "
+        read choice
+        
+        if [[ -z "$choice" || "$choice" == "1" ]]; then
+            screen -d -r "${sessions[1]}"
+        elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -le "$num_sessions" ] && [ "$choice" -gt 0 ]; then
+            screen -d -r "${sessions[$choice]}"
+        elif [[ "$choice" == "n" ]]; then
+            screen
+        elif [[ "$choice" != "c" ]]; then
+            echo "Invalid selection. Staying in standard terminal."
+        fi
+    fi
+fi
+# =====================================================================================
