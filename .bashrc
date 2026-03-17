@@ -72,41 +72,41 @@ fi
 
 
 # =====================================================================================
-# SCREEN session management 
+# SCREEN session management (simplest. turn off if using tmux)
 # =====================================================================================
 # list all screen sockets
 # rm socket as regular to delete that screen
 # screen -ls 
 
-if [ -z "$STY" ]; then
+if [ -z "$STY" ] && [ -z "$TMUX" ]; then
     # Fetch list of existing screen sessions
     sessions=($(screen -ls | awk '/\t[0-9]+\./ {print $1}'))
     num_sessions=${#sessions[@]}
     
+    echo ""
+    echo "--- GNU Screen Management ---"
     if [ $num_sessions -eq 0 ]; then
-        screen
-    elif [ $num_sessions -eq 1 ]; then
-        screen -RR
+        echo "(No active screen sessions found)"
     else
-        echo "Multiple screen sessions available:"
         for i in {1..$num_sessions}; do
-            echo "  $i) ${sessions[$i]}"
+            echo "$i) Attach to ${sessions[$i]}"
         done
-        echo "  n) Create new session"
-        echo "  c) Cancel (stay in standard terminal)"
-        
-        echo -n "Select option [1]: "
-        read choice
-        
-        if [[ -z "$choice" || "$choice" == "1" ]]; then
-            screen -d -r "${sessions[1]}"
-        elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -le "$num_sessions" ] && [ "$choice" -gt 0 ]; then
-            screen -d -r "${sessions[$choice]}"
-        elif [[ "$choice" == "n" ]]; then
-            screen
-        elif [[ "$choice" != "c" ]]; then
-            echo "Invalid selection. Staying in standard terminal."
-        fi
+    fi
+    echo "n) Create new screen session"
+    echo "c) Cancel (stay in standard terminal)"
+    
+    echo -n "Select option [c/Cancel]: "
+    read choice
+    
+    if [[ -z "$choice" || "$choice" == "c" || "$choice" == "C" ]]; then
+        # Default action is to cancel and do nothing
+        :
+    elif [[ "$choice" == "n" || "$choice" == "N" ]]; then
+        screen
+    elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -le "$num_sessions" ] && [ "$choice" -gt 0 ]; then
+        screen -d -r "${sessions[$choice]}"
+    else
+        echo "Invalid selection. Staying in standard terminal."
     fi
 fi
 # =====================================================================================
