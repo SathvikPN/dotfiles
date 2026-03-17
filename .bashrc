@@ -93,9 +93,8 @@ if [ -z "$STY" ] && [ -z "$TMUX" ]; then
         done
     fi
     echo "n) Create new screen session"
-    echo "c) Cancel (stay in standard terminal)"
     
-    echo -n "Select option [c/Cancel]: "
+    echo -n "Select option [c/Cancel/↵]: "
     read choice
     
     if [[ -z "$choice" || "$choice" == "c" || "$choice" == "C" ]]; then
