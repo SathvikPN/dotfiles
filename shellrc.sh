@@ -119,13 +119,26 @@ if [ -n "$BASH_VERSION" ]; then
         fi
     }
 
+    # Define colors for readability
+    c_cyan='\[\033[01;36m\]'
+    c_green='\[\033[01;32m\]'
+    c_blue='\[\033[01;34m\]'
+    c_magenta='\[\033[01;35m\]'
+    c_reset='\[\033[00m\]'
+
     # If this is an xterm set the title to user@host:dir
     case "$TERM" in
     xterm*|rxvt*|screen-256color)
-        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;36m\]$(get_venv)\[\033[00m\]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;35m\]$(parse_git_branch)\[\033[00m\]\$ '
+        p_chroot='${debian_chroot:+($debian_chroot)}'
+        p_venv="${c_cyan}\$(get_venv)${c_reset}"
+        p_user="${c_green}\u@\h${c_reset}"
+        p_dir="${c_blue}\W${c_reset}"
+        p_git="${c_magenta}\$(parse_git_branch)${c_reset}"
+        
+        PS1="${p_chroot}${p_venv}${p_user}:${p_dir}${p_git}\$ "
         ;;
     *)
-        PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\w$(parse_git_branch)\$ '
+        PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\W$(parse_git_branch)\$ '
         ;;
     esac
 fi
