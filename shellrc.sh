@@ -131,7 +131,7 @@ fi
 # rm socket as regular to delete that screen
 # screen -ls 
 
-if [ -z "$STY" ] && [ -z "$TMUX" ]; then
+if [ "$(uname)" = "Linux" ] && [ -z "$STY" ] && [ -z "$TMUX" ]; then
     # Fetch list of existing screen sessions
     sessions=($(screen -ls | awk '/\t[0-9]+\./ {print $1}'))
     num_sessions=${#sessions[@]}
