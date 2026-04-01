@@ -125,29 +125,28 @@ fi
 # UTILITY SCRIPTS
 
 # =====================================================================================
-# SCREEN session management (simplest. turn off if using tmux)
+# SCREEN session management for remote linux machines (simplest. turn off if using tmux)
 # =====================================================================================
 # list all screen sockets
 # rm socket as regular to delete that screen
 # screen -ls 
 
 if [ "$(uname)" = "Linux" ] && [ -z "$STY" ] && [ -z "$TMUX" ]; then
-    # Fetch list of existing screen sessions
     sessions=($(screen -ls | awk '/\t[0-9]+\./ {print $1}'))
     num_sessions=${#sessions[@]}
-    
-    echo ""
-    echo "--- GNU Screen Management ---"
+    echo -e "\n--- GNU Screen Management ---"
     if [ $num_sessions -eq 0 ]; then
         echo "(No active screen sessions found)"
     else
-        for i in {1..$num_sessions}; do
-            echo "$i) Attach to ${sessions[$i]}"
+        i=1
+        for session in "${sessions[@]}"; do
+            echo "$i) Attach to $session"
+            i=$((i + 1))
         done
     fi
     echo "n) Create new screen session"
     
-    echo -n "Select option [c/Cancel/↵]: "
+    echo -n "Select option [cancel/↵]: "
     read choice
     
     if [[ -z "$choice" || "$choice" == "c" || "$choice" == "C" ]]; then
@@ -156,7 +155,14 @@ if [ "$(uname)" = "Linux" ] && [ -z "$STY" ] && [ -z "$TMUX" ]; then
     elif [[ "$choice" == "n" || "$choice" == "N" ]]; then
         screen
     elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -le "$num_sessions" ] && [ "$choice" -gt 0 ]; then
-        screen -d -r "${sessions[$choice]}"
+        idx=1
+        for session in "${sessions[@]}"; do
+            if [ "$idx" -eq "$choice" ]; then
+                screen -d -r "$session"
+                break
+            fi
+            idx=$((idx + 1))
+        done
     else
         echo "Invalid selection. Staying in standard terminal."
     fi
