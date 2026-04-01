@@ -106,13 +106,26 @@ if [ -n "$BASH_VERSION" ]; then
     shopt -s checkwinsize   
     
 
+    # Helper for git branch
+    parse_git_branch() {
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+    }
+
+    # Helper for virtual environment
+    export VIRTUAL_ENV_DISABLE_PROMPT=1
+    get_venv() {
+        if [ -n "$VIRTUAL_ENV" ]; then
+            echo "($(basename "$VIRTUAL_ENV")) "
+        fi
+    }
+
     # If this is an xterm set the title to user@host:dir
     case "$TERM" in
     xterm*|rxvt*|screen-256color)
-        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;36m\]$(get_venv)\[\033[00m\]\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;35m\]$(parse_git_branch)\[\033[00m\]\$ '
         ;;
     *)
-        PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+        PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\w$(parse_git_branch)\$ '
         ;;
     esac
 fi
