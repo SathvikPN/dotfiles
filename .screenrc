@@ -13,10 +13,6 @@ bind n screen      # Ctrl+X, n to create a new window
 bind r title       # Ctrl+X, r rename the current window
 bind w kill        # Ctrl+X, w to close (kill) the current window
 
-# Switch to previous/next window with Ctrl+x then Left/Right arrows
-bindkey "^[OD" prev 
-bindkey "^[OC" next
-
 # Or switch using Ctrl+x then [ or ]
 bind [ prev
 bind ] next
