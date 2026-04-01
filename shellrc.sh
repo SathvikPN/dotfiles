@@ -131,11 +131,12 @@ if [ -n "$BASH_VERSION" ]; then
     xterm*|rxvt*|screen-256color)
         p_chroot='${debian_chroot:+($debian_chroot)}'
         p_venv="${c_cyan}\$(get_venv)${c_reset}"
-        p_user="${c_green}\u@\h${c_reset}"
+        p_user="${c_green}\u${c_reset}"
+        p_host="${c_green}\h${c_reset}"
         p_dir="${c_blue}\W${c_reset}"
         p_git="${c_magenta}\$(parse_git_branch)${c_reset}"
         
-        PS1="${p_chroot}${p_venv}${p_user}:${p_dir}${p_git}\$ "
+        PS1="${p_chroot}${p_venv}${p_user}:${p_dir}${p_git} \$ "
         ;;
     *)
         PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\W$(parse_git_branch)\$ '
