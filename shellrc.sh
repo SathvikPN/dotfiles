@@ -38,6 +38,64 @@ mdnewline() { [[ -n "$1" ]] && sed -i '' 's/$/  /' "$@" || echo "Usage: mdnewlin
 
 
 
+# =====================================================================================
+# BASH Terminals
+# =====================================================================================
+if [ -n "$BASH_VERSION" ]; then
+    # prevent file overwrite via > operator
+    set -o noclobber  
+
+    # don't put duplicate lines or lines starting with space in the history.
+    HISTCONTROL=ignoreboth
+    HISTSIZE=1000
+    HISTFILESIZE=2000
+
+    # append to the history file, don't overwrite it
+    shopt -s histappend
+    # check the window size after each command
+    shopt -s checkwinsize   
+    
+
+    # Helper for git branch
+    parse_git_branch() {
+        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+    }
+
+    # Helper for virtual environment
+    export VIRTUAL_ENV_DISABLE_PROMPT=1
+    get_venv() {
+        if [ -n "$VIRTUAL_ENV" ]; then
+            echo "($(basename "$VIRTUAL_ENV")) "
+        fi
+    }
+
+    # Define colors for readability
+    c_cyan='\[\033[01;36m\]'
+    c_green='\[\033[01;32m\]'
+    c_blue='\[\033[01;34m\]'
+    c_magenta='\[\033[01;35m\]'
+    c_reset='\[\033[00m\]'
+
+    # If this is an xterm set the title to user@host:dir
+    case "$TERM" in
+    xterm*|rxvt*|screen-256color)
+        p_chroot='${debian_chroot:+($debian_chroot)}'
+        p_venv="${c_cyan}\$(get_venv)${c_reset}"
+        p_user="${c_green}\u${c_reset}"
+        p_host="${c_green}@\h${c_reset}"
+        p_dir="${c_blue}\W${c_reset}"
+        p_git="${c_magenta}\$(parse_git_branch)${c_reset}"
+        
+        PS1="${p_chroot}${p_venv}${p_user}${p_host}:${p_dir}${p_git} \$ "
+        ;;
+    *)
+        PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\W$(parse_git_branch)\$ '
+        ;;
+    esac
+fi
+# =====================================================================================
+
+
 
 # =====================================================================================
 # ZSH Terminals 
@@ -86,65 +144,6 @@ if [ -n "$ZSH_VERSION" ]; then
 
 fi 
 # =====================================================================================
-
-
-# =====================================================================================
-# BASH Terminals
-# =====================================================================================
-if [ -n "$BASH_VERSION" ]; then
-    # prevent file overwrite via > operator
-    set -o noclobber  
-
-    # don't put duplicate lines or lines starting with space in the history.
-    HISTCONTROL=ignoreboth
-    HISTSIZE=1000
-    HISTFILESIZE=2000
-
-    # append to the history file, don't overwrite it
-    shopt -s histappend
-    # check the window size after each command
-    shopt -s checkwinsize   
-    
-
-    # Helper for git branch
-    parse_git_branch() {
-        git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-    }
-
-    # Helper for virtual environment
-    export VIRTUAL_ENV_DISABLE_PROMPT=1
-    get_venv() {
-        if [ -n "$VIRTUAL_ENV" ]; then
-            echo "($(basename "$VIRTUAL_ENV")) "
-        fi
-    }
-
-    # Define colors for readability
-    c_cyan='\[\033[01;36m\]'
-    c_green='\[\033[01;32m\]'
-    c_blue='\[\033[01;34m\]'
-    c_magenta='\[\033[01;35m\]'
-    c_reset='\[\033[00m\]'
-
-    # If this is an xterm set the title to user@host:dir
-    case "$TERM" in
-    xterm*|rxvt*|screen-256color)
-        p_chroot='${debian_chroot:+($debian_chroot)}'
-        p_venv="${c_cyan}\$(get_venv)${c_reset}"
-        p_user="${c_green}\u${c_reset}"
-        p_host="${c_green}\h${c_reset}"
-        p_dir="${c_blue}\W${c_reset}"
-        p_git="${c_magenta}\$(parse_git_branch)${c_reset}"
-        
-        PS1="${p_chroot}${p_venv}${p_user}:${p_dir}${p_git} \$ "
-        ;;
-    *)
-        PS1='${debian_chroot:+($debian_chroot)}$(get_venv)\u@\h:\W$(parse_git_branch)\$ '
-        ;;
-    esac
-fi
-# =====================================================================================
-
 
 
 
