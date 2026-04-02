@@ -1,3 +1,10 @@
+# TIPS: ~/.bashrc OR ~/.zshrc
+# if [ -f "$HOME/dotfiles/shellrc.sh" ]; then
+#     source "$HOME/dotfiles/shellrc.sh"
+# else
+#     echo "source shellrc.sh see: github.com/SathvikPN/dotfiles"
+# fi
+
 # =====================================================================================
 # Exports
 # =====================================================================================
